@@ -3,8 +3,12 @@ package com.example.android.uitest;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,15 +16,21 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    FirebaseAuth fAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +38,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final EditText userEmail = findViewById(R.id.userEmail);
+        final EditText userPass = findViewById(R.id.userPass);
+        final Button LogInKnap = findViewById(R.id.logInKnap);
+        fAuth = FirebaseAuth.getInstance();
+
+
+
+
+
 
         //sørger for Textviewet kan klikkes og sende brugeren videre til en glemt tlf, e-mail eller password.
         TextView forgotUserPass = findViewById(R.id.forgotsUserPass2);
@@ -57,13 +77,42 @@ public class MainActivity extends AppCompatActivity {
         newUserFront.setText(newUserSpan);
         newUserFront.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Button logInKnap = findViewById(R.id.logInKnap);
-        logInKnap.setOnClickListener(new View.OnClickListener() {
+
+        LogInKnap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openLogInd();
+                String email = userEmail.getText().toString().trim();
+                String password = userPass.getText().toString().trim();
+
+                if (TextUtils.isEmpty(email)) {
+                    userEmail.setError("Email is Required");
+                    return;
+                }
+                if (TextUtils.isEmpty(password)) {
+                    userPass.setError("Password is Required");
+                    return;
+                }
+
+                if (password.length() < 6) {
+                    userPass.setError("Password must be >= 6 characters");
+                    return;
+                }
+                //progressBar.setVisibility(View.VISIBLE);
+                // authenticating user
+                fAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "User logged in", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), forsideActivity.class));
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error !" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
+
 
 
 
