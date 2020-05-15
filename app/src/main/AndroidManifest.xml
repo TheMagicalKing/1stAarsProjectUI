@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".forsideActivity"></activity>
+        <activity android:name=".oevelseActivity"></activity>
+        <activity android:name=".klientChat" />
+        <activity android:name=".forsideActivity" />
         <activity android:name=".newUserActivity" />
         <activity android:name=".forgotsUserPass" />
         <activity
